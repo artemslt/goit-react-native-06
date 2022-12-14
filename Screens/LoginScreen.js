@@ -34,7 +34,7 @@ export default function Login() {
   };
 
   const onLogin = () => {
-    console.log("Credentials", `${email} + ${password}` + `${logoImage}`);
+    console.log("Credentials", `${email} + ${password}`);
     Keyboard.dismiss();
   };
 
