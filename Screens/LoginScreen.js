@@ -11,10 +11,12 @@ import {
   Platform,
   Pressable,
   Image,
+  ImageBackground,
+  ScrollView,
 } from "react-native";
 import AppButton from "../components/AppButton";
 
-export default function Login() {
+export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -39,58 +41,75 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Log in</Text>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-      >
-        <View style={{ marginBottom: 27 }}>
-          <TextInput
-            value={email}
-            onChangeText={emailHandler}
-            placeholder="Email"
-            style={
-              emailFocused
-                ? { ...styles.input, ...styles.inputFocused }
-                : styles.input
-            }
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-          />
-          <View>
-            <TextInput
-              value={password}
-              onChangeText={passwordHandler}
-              placeholder="Password"
-              secureTextEntry={passwordVisibility}
-              style={
-                passwordFocused
-                  ? { ...styles.input, ...styles.inputFocused }
-                  : styles.input
-              }
-              onFocus={() => setPasswordFocused(true)}
-              onBlur={() => setPasswordFocused(false)}
-            />
-            <Pressable
-              onPress={handlePasswordVisibility}
-              style={{ position: "absolute", right: 16, top: 20 }}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        <ImageBackground
+          source={require("../assets/imgs/background.png")}
+          resizeMode="cover"
+          style={styles.image}
+        >
+          <View style={styles.container}>
+            <Text style={styles.title}>Log in</Text>
+            <KeyboardAvoidingView
+              behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-              <Text style={styles.showField}>
-                {passwordVisibility ? "Show" : "Hide"}
-              </Text>
-            </Pressable>
+              <View style={{ marginBottom: 27 }}>
+                <TextInput
+                  value={email}
+                  onChangeText={emailHandler}
+                  placeholder="Email"
+                  style={
+                    emailFocused
+                      ? { ...styles.input, ...styles.inputFocused }
+                      : styles.input
+                  }
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
+                />
+                <View>
+                  <TextInput
+                    value={password}
+                    onChangeText={passwordHandler}
+                    placeholder="Password"
+                    secureTextEntry={passwordVisibility}
+                    style={
+                      passwordFocused
+                        ? { ...styles.input, ...styles.inputFocused }
+                        : styles.input
+                    }
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                  />
+                  <Pressable
+                    onPress={handlePasswordVisibility}
+                    style={{ position: "absolute", right: 16, top: 20 }}
+                  >
+                    <Text style={styles.showField}>
+                      {passwordVisibility ? "Show" : "Hide"}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+              <AppButton title={"Log in"} onPress={onLogin} />
+              <TouchableOpacity
+                style={{ alignItems: "center", marginVertical: 16 }}
+                onPress={() => navigation.navigate("Registartion")}
+              >
+                <Text style={styles.loginText}>No account? Sing in.</Text>
+              </TouchableOpacity>
+            </KeyboardAvoidingView>
           </View>
-        </View>
-        <AppButton title={"Log in"} onPress={onLogin} />
-        <TouchableOpacity style={{ alignItems: "center", marginVertical: 16 }}>
-          <Text style={styles.loginText}>No account? Sing in.</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </View>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  image: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
   container: {
     position: "relative",
     backgroundColor: "#FFFF",

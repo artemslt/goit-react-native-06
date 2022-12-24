@@ -12,11 +12,33 @@ import {
   Button,
 } from "react-native";
 
-export default function AppButton({ title, onPress }) {
+export default function AppButton({ title, onPress, active }) {
   return (
     <View style={styles.screenContainer}>
-      <TouchableOpacity style={styles.appButtonContainer} onPress={onPress}>
-        <Text style={styles.appButtonText}>{title}</Text>
+      <TouchableOpacity
+        style={
+          active
+            ? styles.appButtonContainer
+            : {
+                ...styles.appButtonContainer,
+                backgroundColor: "#F6F6F6",
+                color: "#BDBDBD",
+              }
+        }
+        onPress={onPress}
+      >
+        <Text
+          style={
+            active
+              ? styles.appButtonText
+              : {
+                  ...styles.appButtonText,
+                  color: "#BDBDBD",
+                }
+          }
+        >
+          {title}
+        </Text>
       </TouchableOpacity>
     </View>
   );

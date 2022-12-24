@@ -11,11 +11,12 @@ import {
   Platform,
   Pressable,
   Image,
+  ImageBackground,
 } from "react-native";
 import AppButton from "../components/AppButton";
 import * as ImagePicker from "expo-image-picker";
 
-export default function Registartion() {
+export default function Registartion({ navigation }) {
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,81 +64,100 @@ export default function Registartion() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.imgHolder}>
-        {logoImage && (
-          <Image
-            source={{ uri: logoImage }}
-            style={{ width: 120, height: 120, borderRadius: 16 }}
-          />
-        )}
-        <TouchableOpacity style={styles.btnImg} onPress={logoImageHandel}>
-          <Image source={require("../assets/imgs/add.png")} />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.title}>Registartion</Text>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-      >
-        <View style={{ marginBottom: 27 }}>
-          <TextInput
-            value={login}
-            onChangeText={loginHandler}
-            placeholder="Login"
-            style={
-              loginFocused
-                ? { ...styles.input, ...styles.inputFocused }
-                : styles.input
-            }
-            onFocus={() => setLoginFocused(true)}
-            onBlur={() => setLoginFocused(false)}
-          />
-          <TextInput
-            value={email}
-            onChangeText={emailHandler}
-            placeholder="Email"
-            style={
-              emailFocused
-                ? { ...styles.input, ...styles.inputFocused }
-                : styles.input
-            }
-            onFocus={() => setEmailFocused(true)}
-            onBlur={() => setEmailFocused(false)}
-          />
-          <View>
-            <TextInput
-              value={password}
-              onChangeText={passwordHandler}
-              placeholder="Password"
-              secureTextEntry={passwordVisibility}
-              style={
-                passwordFocused
-                  ? { ...styles.input, ...styles.inputFocused }
-                  : styles.input
-              }
-              onFocus={() => setPasswordFocused(true)}
-              onBlur={() => setPasswordFocused(false)}
-            />
-            <Pressable
-              onPress={handlePasswordVisibility}
-              style={{ position: "absolute", right: 16, top: 20 }}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        <ImageBackground
+          source={require("../assets/imgs/background.png")}
+          resizeMode="cover"
+          style={styles.image}
+        >
+          <View style={styles.container}>
+            <View style={styles.imgHolder}>
+              {logoImage && (
+                <Image
+                  source={{ uri: logoImage }}
+                  style={{ width: 120, height: 120, borderRadius: 16 }}
+                />
+              )}
+              <TouchableOpacity style={styles.btnImg} onPress={logoImageHandel}>
+                <Image source={require("../assets/imgs/add.png")} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.title}>Registartion</Text>
+            <KeyboardAvoidingView
+              behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-              <Text style={styles.showField}>
-                {passwordVisibility ? "Show" : "Hide"}
-              </Text>
-            </Pressable>
+              <View style={{ marginBottom: 27 }}>
+                <TextInput
+                  value={login}
+                  onChangeText={loginHandler}
+                  placeholder="Login"
+                  style={
+                    loginFocused
+                      ? { ...styles.input, ...styles.inputFocused }
+                      : styles.input
+                  }
+                  onFocus={() => setLoginFocused(true)}
+                  onBlur={() => setLoginFocused(false)}
+                />
+                <TextInput
+                  value={email}
+                  onChangeText={emailHandler}
+                  placeholder="Email"
+                  style={
+                    emailFocused
+                      ? { ...styles.input, ...styles.inputFocused }
+                      : styles.input
+                  }
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
+                />
+                <View>
+                  <TextInput
+                    value={password}
+                    onChangeText={passwordHandler}
+                    placeholder="Password"
+                    secureTextEntry={passwordVisibility}
+                    style={
+                      passwordFocused
+                        ? { ...styles.input, ...styles.inputFocused }
+                        : styles.input
+                    }
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
+                  />
+                  <Pressable
+                    onPress={handlePasswordVisibility}
+                    style={{ position: "absolute", right: 16, top: 20 }}
+                  >
+                    <Text style={styles.showField}>
+                      {passwordVisibility ? "Show" : "Hide"}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+              <AppButton title={"Register"} onPress={onLogin} />
+              <TouchableOpacity
+                style={{ alignItems: "center", marginVertical: 16 }}
+                onPress={() => navigation.navigate("Login")}
+              >
+                <Text style={styles.loginText}>
+                  Already have an account? Log in.
+                </Text>
+              </TouchableOpacity>
+            </KeyboardAvoidingView>
           </View>
-        </View>
-        <AppButton title={"Register"} onPress={onLogin} />
-        <TouchableOpacity style={{ alignItems: "center", marginVertical: 16 }}>
-          <Text style={styles.loginText}>Already have an account? Log in.</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </View>
+        </ImageBackground>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  image: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
   container: {
     position: "relative",
     backgroundColor: "#FFFF",
