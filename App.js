@@ -16,10 +16,13 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-const AuthStack = createStackNavigator();
+// const AuthStack = createStackNavigator();/
 // SplashScreen.preventAutoHideAsync();
+import useRoute from "./route";
 
 export default function App() {
+  const routing = useRoute(true);
+  console.log(routing);
   const [isAuth, setIsAuth] = useState(false);
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("./assets/fonts/Roboto/Roboto-Regular.ttf"),
@@ -35,21 +38,11 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
+
   // return (
   //   <View style={{ flex: 1 }}>
   //     <Text>HEllo</Text>
   //   </View>
   // );
-  return (
-    <NavigationContainer>
-      {isAuth ? (
-        <AuthStack.Navigator>
-          <AuthStack.Screen name="Login" component={Login} />
-          <AuthStack.Screen name="Registartion" component={Registartion} />
-        </AuthStack.Navigator>
-      ) : (
-        <Home />
-      )}
-    </NavigationContainer>
-  );
+  return <NavigationContainer>{routing}</NavigationContainer>;
 }

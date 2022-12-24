@@ -59,9 +59,15 @@ export default Home = ({ navigation }) => {
           tabBarStyle: { display: "none" },
           tabBarVisible: false,
           tabBarIcon: () => <Plus width={70} height={40} />,
-          headerLeft: () => (
-            <ArrowLeft width={24} height={24} stroke="#212121" />
-          ),
+          headerLeft: () => {
+            return (
+              <View>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <ArrowLeft width={24} height={24} stroke="#212121" />
+                </TouchableOpacity>
+              </View>
+            );
+          },
         }}
       />
       <BottomTab.Screen
