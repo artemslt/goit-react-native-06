@@ -40,7 +40,6 @@ export default function Registartion({ navigation }) {
       quality: 1,
     });
 
-    console.log(result);
 
     if (!result.canceled) {
       setLogoImage(result.assets[0].uri);

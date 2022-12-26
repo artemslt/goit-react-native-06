@@ -22,7 +22,6 @@ import useRoute from "./route";
 
 export default function App() {
   const routing = useRoute(true);
-  console.log(routing);
   const [isAuth, setIsAuth] = useState(false);
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("./assets/fonts/Roboto/Roboto-Regular.ttf"),

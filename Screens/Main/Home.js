@@ -58,7 +58,7 @@ export default Home = ({ navigation }) => {
         options={{
           tabBarStyle: { display: "none" },
           tabBarVisible: false,
-          tabBarIcon: () => <Plus width={70} height={40} />,
+          tabBarIcon: () => <Plus />,
           headerLeft: () => {
             return (
               <View>
