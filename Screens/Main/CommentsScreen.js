@@ -153,7 +153,6 @@ const CommentsScreen = ({ route }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const { login, myImage } = useSelector((state) => state.auth);
 
-  //   завантаження коментарів на firebase
   const sendCommentToServer = async () => {
     const date = new Date().toLocaleDateString();
     const time = new Date().toLocaleTimeString();
@@ -195,8 +194,6 @@ const CommentsScreen = ({ route }) => {
     Keyboard.dismiss();
     setIsShowKeyboard(false);
   };
-
-  // const renderItem =
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
