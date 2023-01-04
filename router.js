@@ -8,6 +8,7 @@ import MapScreen from "./Screens/Main/MapScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
+
 const useRoute = (isAuth) => {
   if (!isAuth) {
     return (

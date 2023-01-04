@@ -16,13 +16,16 @@ import {
 import { Camera, CameraType } from "expo-camera";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+import { fsbase } from "../../firebase/config";
 import AddPhot from "../../assets/imgs/Photo.svg";
 import LocationIcon from "../../assets/imgs/map-pin.svg";
 import DeletePost from "../../assets/imgs/trash.svg";
 import Delete from "../../assets/imgs/delete.svg";
 
 import AppButton from "../../components/AppButton";
+import { useSelector } from "react-redux";
 
 export default function CreateScreen({ navigation }) {
   const [camera, setCamera] = useState(null);
@@ -34,6 +37,8 @@ export default function CreateScreen({ navigation }) {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [isPost, setIsPost] = useState(false);
 
+  const { userId, login } = useSelector((state) => state.auth);
+  console.log(useSelector((state) => state.auth));
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
   );
@@ -53,22 +58,6 @@ export default function CreateScreen({ navigation }) {
       if (status !== "granted") {
         console.log("Permission to access location was denied");
       }
-      let location = await Location.getCurrentPositionAsync({});
-      const coords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
-      setLocation(coords);
-      if (coords) {
-        let { longitude, latitude } = coords;
-
-        let regionName = await Location.reverseGeocodeAsync({
-          longitude,
-          latitude,
-        });
-        setLocationName(regionName[0].region);
-        console.log(regionName);
-      }
     })();
   }, []);
 
@@ -79,18 +68,76 @@ export default function CreateScreen({ navigation }) {
   }, [name, photo]);
 
   const takePhoto = async () => {
-    const photo = await camera.takePictureAsync();
-    setPhoto(photo.uri);
+    const { uri } = await camera.takePictureAsync();
+    const location = await Location.getCurrentPositionAsync();
+    const coords = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+    setLocation(coords);
+    if (coords) {
+      let { longitude, latitude } = coords;
+
+      let regionName = await Location.reverseGeocodeAsync({
+        longitude,
+        latitude,
+      });
+      setLocationName(regionName[0].region);
+      console.log(regionName);
+    }
+
+    setPhoto(uri);
+    console.log("photo uri ", uri);
   };
 
-  const handlePublish = () => {
-    if (isPost) {
-      return navigation.navigate("Posts", {
+  const uploadPhotoToServer = async () => {
+    const storage = getStorage();
+    const uniquePostId = Date.now().toString();
+    const storageRef = ref(storage, `imagas/${uniquePostId}`);
+
+    const response = await fetch(photo);
+    const file = await response.blob();
+
+    const uploadPhoto = await uploadBytes(storageRef, file).then(() => {});
+
+    const processedPhoto = await getDownloadURL(
+      ref(storage, `imagas/${uniquePostId}`)
+    )
+      .then((url) => {
+        return url;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    return processedPhoto;
+  };
+  const uploadPostToServer = async () => {
+    const photo = await uploadPhotoToServer();
+
+    try {
+      const setUserPost = await addDoc(collection(fsbase, "posts"), {
         photo,
         name,
         location,
         locationName,
+        userId,
+        login,
       });
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+  const sendInfo = () => {
+    navigation.navigate("Posts");
+  };
+  const handlePublish = () => {
+    if (isPost) {
+      uploadPostToServer();
+      sendInfo();
+      uploadPhotoToServer();
+
+      Keyboard.dismiss();
+      return;
     }
     return alert("Fill post information");
   };

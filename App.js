@@ -1,28 +1,21 @@
 import React, { useEffect, useCallback, useState } from "react";
-import {
-  StyleSheet,
-  ImageBackground,
-  View,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TouchableWithoutFeedback,
-} from "react-native";
-import Registartion from "./Screens/RegistarationScreen";
-import Login from "./Screens/LoginScreen";
-import Home from "./Screens/Main/Home";
+
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-// const AuthStack = createStackNavigator();/
-// SplashScreen.preventAutoHideAsync();
-import useRoute from "./route";
+
+import useRoute from "./router";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { store } from "./redux/store";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/config";
+import { authStateChangeUsers } from "./redux/auth/authOperation";
 
 export default function App() {
-  const routing = useRoute(true);
-  const [isAuth, setIsAuth] = useState(false);
+  // const routing = useRoute(false);
+  // const { stateChange } = useSelector((state) => state.auth);
+  // console.log(stateChange);
+
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("./assets/fonts/Roboto/Roboto-Regular.ttf"),
     "Roboto-Bold": require("./assets/fonts/Roboto/Roboto-Bold.ttf"),
@@ -37,11 +30,31 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   dispatch(authStateChangeUsers());
+  // }, [stateChange]);
+  // onAuthStateChanged(auth, (user) => {
+  //   setUser(user);
+  //   console.log(user);
+  // });
 
-  // return (
-  //   <View style={{ flex: 1 }}>
-  //     <Text>HEllo</Text>
-  //   </View>
-  // );
+  return (
+    <Provider store={store}>
+      <Route />
+    </Provider>
+  );
+}
+
+function Route() {
+  const { stateChange } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(authStateChangeUsers());
+  }, [stateChange]);
+
+  const routing = useRoute(stateChange);
+
   return <NavigationContainer>{routing}</NavigationContainer>;
 }

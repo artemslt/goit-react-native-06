@@ -15,21 +15,26 @@ import {
 } from "react-native";
 import AppButton from "../components/AppButton";
 import * as ImagePicker from "expo-image-picker";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../redux/auth/authOperation";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const initialState = {
+  login: "",
+  email: "",
+  password: "",
+  logoImage: null,
+};
 
 export default function Registartion({ navigation }) {
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [logoImage, setLogoImage] = useState(null);
+  const [state, setState] = useState(initialState);
 
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [loginFocused, setLoginFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
-  const loginHandler = (text) => setLogin(text);
-  const emailHandler = (text) => setEmail(text);
-  const passwordHandler = (text) => setPassword(text);
+  const dispatch = useDispatch();
 
   const logoImageHandel = async () => {
     // No permissions request is necessary for launching the image library
@@ -40,9 +45,11 @@ export default function Registartion({ navigation }) {
       quality: 1,
     });
 
-
     if (!result.canceled) {
-      setLogoImage(result.assets[0].uri);
+      setState((prevstate) => ({
+        ...prevstate,
+        logoImage: result.assets[0].uri,
+      }));
     }
   };
 
@@ -54,12 +61,48 @@ export default function Registartion({ navigation }) {
     setPasswordVisibility(true);
   };
 
-  const onLogin = () => {
-    console.log(
-      "Credentials",
-      `${login} + ${email} + ${password}` + `${logoImage}`
-    );
-    Keyboard.dismiss();
+  const uploadPhotoToServer = async () => {
+    const storage = getStorage();
+    const uniquePostId = Date.now().toString();
+    const storageRef = ref(storage, `logoImage/${uniquePostId}`);
+
+    const response = await fetch(state.logoImage);
+    const file = await response.blob();
+
+    const uploadPhoto = await uploadBytes(storageRef, file).then(() => {});
+
+    const photoUri = await getDownloadURL(
+      ref(storage, `logoImage/${uniquePostId}`)
+    )
+      .then((url) => {
+        return url;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    return photoUri;
+  };
+
+  const onLogin = async () => {
+    try {
+      const imageRef = await uploadPhotoToServer();
+      console.log(`imageRef`, imageRef);
+
+      setState((prevState) => ({ ...prevState, myImage: imageRef }));
+      const newState = {
+        logoImage: imageRef,
+        login: state.login,
+        email: state.email,
+        password: state.password,
+      };
+      console.log(`newState`, newState);
+      dispatch(authSignUpUser(newState));
+      //   setState(initialState);
+      setIsShowKeyboard(false);
+      Keyboard.dismiss();
+    } catch (error) {
+      console.log("error.messageRegister", error.message);
+    }
   };
 
   return (
@@ -72,9 +115,9 @@ export default function Registartion({ navigation }) {
         >
           <View style={styles.container}>
             <View style={styles.imgHolder}>
-              {logoImage && (
+              {state.logoImage && (
                 <Image
-                  source={{ uri: logoImage }}
+                  source={{ uri: state.logoImage }}
                   style={{ width: 120, height: 120, borderRadius: 16 }}
                 />
               )}
@@ -88,8 +131,13 @@ export default function Registartion({ navigation }) {
             >
               <View style={{ marginBottom: 27 }}>
                 <TextInput
-                  value={login}
-                  onChangeText={loginHandler}
+                  value={state.login}
+                  onChangeText={(text) =>
+                    setState((prevstate) => ({
+                      ...prevstate,
+                      login: text.trim(),
+                    }))
+                  }
                   placeholder="Login"
                   style={
                     loginFocused
@@ -100,8 +148,13 @@ export default function Registartion({ navigation }) {
                   onBlur={() => setLoginFocused(false)}
                 />
                 <TextInput
-                  value={email}
-                  onChangeText={emailHandler}
+                  value={state.email}
+                  onChangeText={(text) =>
+                    setState((prevstate) => ({
+                      ...prevstate,
+                      email: text.trim(),
+                    }))
+                  }
                   placeholder="Email"
                   style={
                     emailFocused
@@ -113,8 +166,13 @@ export default function Registartion({ navigation }) {
                 />
                 <View>
                   <TextInput
-                    value={password}
-                    onChangeText={passwordHandler}
+                    value={state.password}
+                    onChangeText={(text) =>
+                      setState((prevstate) => ({
+                        ...prevstate,
+                        password: text,
+                      }))
+                    }
                     placeholder="Password"
                     secureTextEntry={passwordVisibility}
                     style={

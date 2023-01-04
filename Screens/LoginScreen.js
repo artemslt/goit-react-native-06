@@ -14,18 +14,22 @@ import {
   ImageBackground,
   ScrollView,
 } from "react-native";
+import { useDispatch } from "react-redux";
 import AppButton from "../components/AppButton";
+import { authSignInUser } from "../redux/auth/authOperation";
+
+const initialState = {
+  email: "",
+  password: "",
+};
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [state, setState] = useState(initialState);
+  const dispatch = useDispatch();
 
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-
-  const emailHandler = (text) => setEmail(text);
-  const passwordHandler = (text) => setPassword(text);
 
   const handlePasswordVisibility = () => {
     if (passwordVisibility) {
@@ -36,8 +40,8 @@ export default function Login({ navigation }) {
   };
 
   const onLogin = () => {
-    console.log("Credentials", `${email} + ${password}`);
     Keyboard.dismiss();
+    dispatch(authSignInUser(state));
   };
 
   return (
@@ -55,8 +59,13 @@ export default function Login({ navigation }) {
             >
               <View style={{ marginBottom: 27 }}>
                 <TextInput
-                  value={email}
-                  onChangeText={emailHandler}
+                  value={state.email}
+                  onChangeText={(text) =>
+                    setState((prevstate) => ({
+                      ...prevstate,
+                      email: text.trim(),
+                    }))
+                  }
                   placeholder="Email"
                   style={
                     emailFocused
@@ -68,8 +77,13 @@ export default function Login({ navigation }) {
                 />
                 <View>
                   <TextInput
-                    value={password}
-                    onChangeText={passwordHandler}
+                    value={state.password}
+                    onChangeText={(text) =>
+                      setState((prevstate) => ({
+                        ...prevstate,
+                        password: text,
+                      }))
+                    }
                     placeholder="Password"
                     secureTextEntry={passwordVisibility}
                     style={

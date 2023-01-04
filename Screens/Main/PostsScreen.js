@@ -10,28 +10,38 @@ import {
 } from "react-native";
 import CommetsIcon from "../../assets/imgs/Shape.svg";
 import LocationIcon from "../../assets/imgs/map-pin.svg";
-import PostItem from "../../components/Post";
-const PostsScreen = ({ navigation, route }) => {
+
+import { useSelector } from "react-redux";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { fsbase } from "../../firebase/config";
+
+const PostsScreen = ({ navigation }) => {
+  const { login, email, logoImage } = useSelector((state) => state.auth);
+  console.log(useSelector((state) => state.auth));
   const [posts, setPosts] = useState([]);
 
+  const getAllPosts = async () => {
+    onSnapshot(collection(fsbase, "posts"), (docSnap) =>
+      setPosts(docSnap.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+    );
+  };
+
   useEffect(() => {
-    if (!route.params) {
-      return;
-    }
-    setPosts((prevstate) => [...prevstate, route.params]);
-  }, [route.params]);
+    getAllPosts();
+    console.log("post+++>>>", posts);
+  }, []);
 
   console.log(posts);
   return (
     <View style={styles.container}>
       <View style={styles.userInfo}>
         <Image
-          style={{ marginRight: 8, borderRadius: 16 }}
-          source={require("../../assets/imgs/UserPhoto.jpg")}
+          style={{ marginRight: 8, borderRadius: 8, width: 64, height: 64 }}
+          source={{ uri: logoImage }}
         />
         <View>
-          <Text style={{ fontFamily: "Roboto-Bold" }}>user Login</Text>
-          <Text style={{ fontFamily: "Roboto-Regular" }}>user Email</Text>
+          <Text style={{ fontFamily: "Roboto-Bold" }}>{login}</Text>
+          <Text style={{ fontFamily: "Roboto-Regular" }}>{email}</Text>
         </View>
       </View>
       <FlatList
@@ -69,7 +79,10 @@ const PostsScreen = ({ navigation, route }) => {
                 <View style={{ flexDirection: "row" }}>
                   <TouchableOpacity
                     onPress={() =>
-                      navigation.navigate("Comments", { photo: item.photo })
+                      navigation.navigate("Comments", {
+                        photo: item.photo,
+                        postId: item.userId,
+                      })
                     }
                   >
                     <CommetsIcon />
